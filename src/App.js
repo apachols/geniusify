@@ -1,22 +1,10 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
+import spotify from './spotify.png';
+import genius from './genius.png';
 import './App.css';
+import makeRequest from './makeRequest'
 
-const oAuthInfoSpotify = {
-  baseUrl: 'https://accounts.spotify.com/authorize',
-  clientId: '6746d825f4ff401495e2fe7858a31294',
-  redirectUri: 'http:%2F%2Flocalhost:3000',
-  scope: 'user-read-playback-state',
-  extra: 'response_type=token&state=123'
-};
-
-const oAuthInfoGenius = {
-  baseUrl: 'https://api.genius.com/oauth/authorize',
-  clientId: 'ckMjotp2COVxXXl1rVNTnW5iTrxHvTkt-aJTI99aVXmHNWrnak9fVNURKfrix-Nt',
-  redirectUri: 'http:%2F%2Flocalhost:3000',
-  scope: 'me',
-  extra: 'response_type=token&state=123',
-};
+import { oAuthInfoSpotify, oAuthInfoGenius } from './config.js'
 
 const oAuthUrl = (oAuthInfo) => {
   const {baseUrl, clientId, redirectUri, scope, extra} = oAuthInfo;
@@ -39,47 +27,36 @@ const getAuthInfoFromHash = (hash) => {
   return JSON.parse(JSON.stringify(result));
 }
 
+const localSpotifyToken = window.localStorage.getItem('spotify');
+if (localSpotifyToken) {
+  window.spotify = JSON.parse(localSpotifyToken);
+}
+
+const localGeniusToken = window.localStorage.getItem('genius');
+if (localGeniusToken) {
+  window.genius = JSON.parse(localGeniusToken);
+}
+
 const urlParts = window.location.href.split('#');
 const hash = urlParts[1] ? urlParts[1] : null;
 if (hash) {
   const { access_token } = getAuthInfoFromHash(hash);
-  window.access_token = access_token;
+  switch (window.location.pathname) {
+    case '/spotify':
+      window.spotify = { access_token };
+      window.localStorage.setItem('spotify', JSON.stringify(window.spotify));
+      break;
+    case '/genius':
+      window.genius = { access_token };
+      window.localStorage.setItem('genius', JSON.stringify(window.genius));
+      break;
+    default:
+      throw new Error('Hash without oauth path');
+  }
   window.history.pushState({}, 'Geniusify', '/');
 } else {
   console.log('Auth not ready, no hash');
 }
-
-var makeRequest = function (url, method, headers) {
-	var request = new XMLHttpRequest();
-
-	return new Promise(function (resolve, reject) {
-
-		request.onreadystatechange = function () {
-			// Only run if the request is complete
-			if (request.readyState !== 4) {
-        return;
-      }
-      // Resolve if OK, else reject
-      if (request.status >= 200 && request.status < 300) {
-				resolve(request);
-			} else {
-				reject({
-					status: request.status,
-					statusText: request.statusText
-				});
-			}
-		};
-
-		request.open(method || 'GET', url, true);
-
-    // Add request headers
-    Object.entries(headers).forEach(([key, value]) => {
-      request.setRequestHeader(key, value);
-    });
-
-		request.send();
-	});
-};
 
 const songNameFromSpotifyResponse = (rawResponse) => {
   try {
@@ -113,13 +90,13 @@ const getCurrentlyPlaying = () => {
   const headers = {
     'Accept': 'application/json',
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${window.access_token}`
+    'Authorization': `Bearer ${window.spotify.access_token}`
   };
   return makeRequest(spotifyApiUrl, 'GET', headers)
 }
 
 const getLyricsForSong = (searchQuery) => {
-  const geniusApiUrl = `https://api.genius.com/search?q=${searchQuery}&access_token=${window.access_token}`;
+  const geniusApiUrl = `https://api.genius.com/search?q=${searchQuery}&access_token=${window.genius.access_token}`;
   const headers = {
       'Accept': 'application/json',
   };
@@ -152,14 +129,21 @@ class App extends Component {
     return (
       <div className="App">
         <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
+          <div>
+            <img src={spotify} className="App-logo" alt="spotify" />
+            <img src={genius} className="App-logo" alt="genius" />
+            {!(window.spotify && window.spotify.access_token) && (
+              <div>
+                <a className="App-link" href={spotifyAuthUrl}>Log In To Spotify</a>
+              </div>
+            )}
+            {!(window.genius && window.genius.access_token) && (
+              <div>
+                <a className="App-link" href={geniusAuthUrl}>Log In To Genius</a>
+              </div>
+            )}
+          </div>
           <h1>Geniusify</h1>
-            <div>
-              <a class="App-link" href={spotifyAuthUrl}>Log In To Spotify</a>
-            </div>
-            <div>
-              <a class="App-link" href={geniusAuthUrl}>Log In To Genius</a>
-            </div>
             <br></br>
             <div>
                 <button onClick={this.setCurrentlyPlaying} type='button'>
