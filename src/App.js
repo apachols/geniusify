@@ -6,13 +6,14 @@ import geniusLogo from './genius.png';
 
 import { getAuthInfoFromHash } from './auth'
 
-import { spotifyAuthUrl, songNameFromSpotifyResponse, getCurrentlyPlaying } from './spotify'
-import { geniusAuthUrl, lyricsLinkFromGeniusResponse, getLyricsForSong } from './genius'
+import { spotifyAuthUrl } from './spotify'
+import { geniusAuthUrl } from './genius'
+
+import { CurrentlyPlaying }  from './CurrentlyPlaying'
+import { Lyrics }  from './Lyrics'
 
 class App extends Component {
   state = {
-    currentlyPlaying: 'Never Gonna Give You Up',
-    lyricsLink: 'https://genius.com/Rick-astley-never-gonna-give-you-up-lyrics',
     spotify: {
       access_token: null
     },
@@ -34,13 +35,11 @@ class App extends Component {
       this.setState({ genius }); 
     }
 
-    // "router.js" AKA component did mount App
     const urlParts = window.location.href.split('#');
     const hash = urlParts[1] ? urlParts[1] : null;
     if (hash) {
       const { access_token } = getAuthInfoFromHash(hash);
       switch (window.location.pathname) {
-        // token.js
         case '/spotify':
           this.setState({ spotify: { access_token } });
           window.localStorage.setItem('spotify', JSON.stringify({ access_token }));
@@ -56,25 +55,8 @@ class App extends Component {
     }
   }
 
-  setCurrentlyPlaying = () => {
-    const { access_token } = this.state.spotify; 
-    getCurrentlyPlaying(access_token).then(({ response }) => {
-      const currentlyPlaying = songNameFromSpotifyResponse(response);
-      this.setState({ currentlyPlaying });
-    });
-  };
-
-  setLyricsLink = () => {
-    const { currentlyPlaying } = this.state;
-    const { access_token } = this.state.genius;
-    getLyricsForSong(access_token, currentlyPlaying).then(({ response }) => {
-      const lyricsLink = lyricsLinkFromGeniusResponse(response);
-      this.setState({ lyricsLink });
-    });
-  };
-
   render() {
-    const {currentlyPlaying, lyricsLink, spotify, genius} = this.state;
+    const { spotify, genius } = this.state;
 
     console.log('spotify', spotify);
     console.log('genius', genius);
@@ -98,18 +80,11 @@ class App extends Component {
           </div>
           <h1>Geniusify</h1>
             <br></br>
-            <div>
-                <button onClick={this.setCurrentlyPlaying} type='button'>
-                  What song is playing?
-                </button>
-            </div>
-            <h4>{currentlyPlaying}</h4>
-            <div>
-                <button onClick={this.setLyricsLink} type='button'>
-                  What are the lyrics?
-                </button>
-            </div>
-            <h4>{lyricsLink}</h4>
+            <CurrentlyPlaying access_token={spotify.access_token}>
+              {currentlyPlaying => (
+                <Lyrics access_token={genius.access_token} currentlyPlaying={currentlyPlaying}/>
+              )}
+            </CurrentlyPlaying>
         </header>
       </div>
     );
