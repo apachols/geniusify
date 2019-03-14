@@ -1,4 +1,4 @@
-export default (url, method, headers) => {
+export const makeRequest = (url, method, headers) => {
   var request = new XMLHttpRequest();
 
   return new Promise((resolve, reject) => {
