@@ -1,6 +1,6 @@
 import React, { Fragment, useState, useEffect } from 'react';
 
-import { songNameFromSpotifyResponse, getCurrentlyPlaying } from './spotify'
+import { songNameFromSpotifyResponse, getCurrentlyPlaying } from './spotify.api'
 
 export const CurrentlyPlaying = (props) => {
   const { access_token } = props;

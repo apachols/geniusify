@@ -1,6 +1,6 @@
 import React, { Fragment, useState, useEffect } from 'react';
 
-import { lyricsLinkFromGeniusResponse, getLyricsForSong } from './genius'
+import { lyricsLinkFromGeniusResponse, getLyricsForSong } from './genius.api'
 
 export const Lyrics = (props) => {
   const { access_token, currentlyPlaying } = props;
