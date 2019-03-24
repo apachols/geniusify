@@ -9,6 +9,9 @@ export const CurrentlyPlaying = (props) => {
 
   useEffect(() => {
     if (dirty) {
+      if (!access_token) {
+        throw new Error('Missing Access Token');
+      }
       getCurrentlyPlaying(access_token).then(({ response }) => {
         const songName = songNameFromSpotifyResponse(response);
         setCurrentlyPlaying(songName);
