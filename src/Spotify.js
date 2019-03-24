@@ -17,10 +17,8 @@ export class SpotifyProvider extends Component {
       this.setState({ access_token }); 
     }
 
-    const urlParts = window.location.href.split('#');
-    const hash = urlParts[1] ? urlParts[1] : null;
-    if (hash && window.location.pathname === '/spotify') {
-      const { access_token } = getAuthInfoFromHash(hash);
+    if (window.location.pathname === '/spotify') {
+      const { access_token } = getAuthInfoFromHash(window.location.href);
       this.setState({ access_token });
       window.localStorage.setItem('spotify', JSON.stringify({ access_token }));
       window.history.pushState({}, 'Geniusify', '/');

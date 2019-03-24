@@ -1,10 +1,13 @@
+import { access } from "fs";
 
 export const oAuthUrl = (oAuthInfo) => {
   const {baseUrl, clientId, redirectUri, scope, extra} = oAuthInfo;
   return `${baseUrl}?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&${extra}`;
 }
 
-export const getAuthInfoFromHash = (hash) => {
+export const getAuthInfoFromHash = (href) => {
+  const urlParts = href.split('#');
+  const hash = urlParts[1] ? urlParts[1] : null;
   if (!hash) {
       return {};
   }

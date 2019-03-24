@@ -17,10 +17,8 @@ export class GeniusProvider extends Component {
       this.setState({ access_token }); 
     }
 
-    const urlParts = window.location.href.split('#');
-    const hash = urlParts[1] ? urlParts[1] : null;
-    if (hash && window.location.pathname === '/genius') {
-      const { access_token } = getAuthInfoFromHash(hash);
+    if (window.location.pathname === '/genius') {
+      const { access_token } = getAuthInfoFromHash(window.location.href);
       this.setState({ access_token });
       window.localStorage.setItem('genius', JSON.stringify({ access_token }));
       window.history.pushState({}, 'Geniusify', '/');
