@@ -38,3 +38,9 @@ export class SpotifyProvider extends Component {
     )
   }
 }
+
+export const Spotify = (props) => (
+  <SpotifyContext.Consumer>
+    {({spotifyAccessToken}) => props.children(spotifyAccessToken)}
+  </SpotifyContext.Consumer>
+)

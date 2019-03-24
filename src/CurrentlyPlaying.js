@@ -2,17 +2,25 @@ import React, { Fragment, useState, useEffect } from 'react';
 
 import { songNameFromSpotifyResponse, getCurrentlyPlaying } from './spotify.api'
 
-export const CurrentlyPlaying = (props) => {
-  const { access_token } = props;
+import { Spotify } from './Spotify';
+
+export const CurrentlyPlaying = (props) => (
+  <Spotify>
+    {spotifyAccessToken => <CurrentlyPlayingInner spotifyAccessToken={spotifyAccessToken} {...props} />}
+  </Spotify>
+)
+
+export const CurrentlyPlayingInner = (props) => {
+  const { spotifyAccessToken } = props;
   const [currentlyPlaying, setCurrentlyPlaying] = useState('Never Gonna Give You Up');
   const [dirty, setDirty] = useState(false);
 
   useEffect(() => {
     if (dirty) {
-      if (!access_token) {
-        throw new Error('Missing Access Token');
+      if (!spotifyAccessToken) {
+        throw new Error('Missing Spotify Access Token');
       }
-      getCurrentlyPlaying(access_token).then(({ response }) => {
+      getCurrentlyPlaying(spotifyAccessToken).then(({ response }) => {
         const songName = songNameFromSpotifyResponse(response);
         setCurrentlyPlaying(songName);
         setDirty(false);
