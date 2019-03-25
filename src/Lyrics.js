@@ -35,7 +35,7 @@ export const LyricsInner = (props) => {
         What are the lyrics?
       </button>
     </div>
-    <h4>{lyricsLink}</h4>
+    <a href={lyricsLink} target="_blank">{currentlyPlaying}</a>
     </Fragment>
   )
 }
