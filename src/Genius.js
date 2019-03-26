@@ -23,6 +23,11 @@ export class GeniusProvider extends Component {
       window.localStorage.setItem('genius', JSON.stringify({ access_token }));
       window.history.pushState({}, 'Geniusify', '/');
     }
+    if (window.location.pathname === '/logout/genius') {
+      this.setState({ access_token: null });
+      window.localStorage.removeItem('genius');
+      window.history.pushState({}, 'Geniusify', '/');
+    }
   }
 
   render() {

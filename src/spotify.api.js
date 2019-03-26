@@ -6,9 +6,17 @@ export const spotifyAuthUrl = oAuthUrl(oAuthInfoSpotify);
 
 export const songNameFromSpotifyResponse = (rawResponse) => {
   try {
-    const parsed = JSON.parse(rawResponse);
-    if (parsed && parsed.item) {
-      return parsed.item.name;
+    const data = JSON.parse(rawResponse);
+    const parts = [];
+    if (data) {
+      if (data.item) {
+        parts.unshift(data.item.name);
+        if (data.item.artists && data.item.artists[0]) {
+          parts.unshift(data.item.artists[0].name);
+          return parts.join(' - ');
+        }
+        return parts.pop();
+      }
     }
   } catch (err) {
     console.log(err);

@@ -23,6 +23,11 @@ export class SpotifyProvider extends Component {
       window.localStorage.setItem('spotify', JSON.stringify({ access_token }));
       window.history.pushState({}, 'Geniusify', '/');
     }
+    if (window.location.pathname === '/logout/spotify') {
+      this.setState({ access_token: null });
+      window.localStorage.removeItem('spotify');
+      window.history.pushState({}, 'Geniusify', '/');
+    }
   }
 
   render() {

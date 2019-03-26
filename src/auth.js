@@ -1,5 +1,3 @@
-import { access } from "fs";
-
 export const oAuthUrl = (oAuthInfo) => {
   const {baseUrl, clientId, redirectUri, scope, extra} = oAuthInfo;
   return `${baseUrl}?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&${extra}`;

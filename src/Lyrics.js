@@ -23,8 +23,13 @@ export const LyricsInner = (props) => {
       getLyricsForSong(geniusAccessToken, currentlyPlaying).then(({ response }) => {
         const lyricsLink = lyricsLinkFromGeniusResponse(response);
         setLyricsLink(lyricsLink);
+        window.open(lyricsLink);
         setDirty(false);
-      });
+      }).catch((err) => {
+        if (err.status === 401) {
+          window.location.href = '/logout/genius';
+        }
+      });  
     }
   }, [dirty]);
   
@@ -35,7 +40,6 @@ export const LyricsInner = (props) => {
         What are the lyrics?
       </button>
     </div>
-    <a href={lyricsLink} target="_blank">{currentlyPlaying}</a>
     </Fragment>
   )
 }

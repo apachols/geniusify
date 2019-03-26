@@ -24,6 +24,11 @@ export const CurrentlyPlayingInner = (props) => {
         const songName = songNameFromSpotifyResponse(response);
         setCurrentlyPlaying(songName);
         setDirty(false);
+      })
+      .catch((err) => {
+        if (err.status === 401) {
+          window.location.href = '/logout/spotify';
+        }
       });  
     }
   }, [dirty]);
