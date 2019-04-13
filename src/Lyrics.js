@@ -1,5 +1,9 @@
 import React, { Fragment, useState, useEffect } from 'react';
 
+import geniusLogo from './genius.png';
+
+import { geniusAuthUrl } from './genius.api';
+
 import { lyricsLinkFromGeniusResponse, getLyricsForSong } from './genius.api'
 
 import { Genius } from './Genius';
@@ -12,7 +16,7 @@ export const Lyrics = (props) => (
 
 export const LyricsInner = (props) => {
   const { geniusAccessToken, currentlyPlaying } = props;
-  const { blerk, setBlerk } = useState(false);
+  const [ childWindow, setChildWindow ] = useState(false);
   const [ enabled, setEnabled ] = useState(false);
   
   useEffect(() => {
@@ -22,34 +26,42 @@ export const LyricsInner = (props) => {
       }
       getLyricsForSong(geniusAccessToken, currentlyPlaying).then(({ response }) => {
         const lyricsLink = lyricsLinkFromGeniusResponse(response);
-        if (blerk) {
-          blerk.location.href = lyricsLink; 
+        if (childWindow) {
+          childWindow.location.href = lyricsLink; 
         } else {
           const returnValue = window.open(lyricsLink);
-          setBlerk(returnValue);
+          setChildWindow(returnValue);
         }
-        setEnabled(false);
       }).catch((err) => {
         if (err.status === 401) {
           window.location.href = '/logout/genius';
         }
       });  
     }
-  }, [geniusAccessToken, blerk, setBlerk, currentlyPlaying, enabled]);
+  }, [geniusAccessToken, childWindow, currentlyPlaying, enabled]);
   
   return (
-    <Fragment>
-      {!enabled ? (
-        <div>
-          <button onClick={() => setEnabled(true)} type='button'>
-            What are the lyrics?
-          </button>
+    <Fragment> 
+      <div className="App-section" onClick={() => setEnabled(true)}>
+        <div className="Section-logo-container">
+          <img src={geniusLogo} className="Section-logo" alt="genius"/>
         </div>
-      ) : (
-        <button onClick={() => setEnabled(false)} type='button'>
-          Disable
-        </button>
-      )}
+        <div className="Section-content-container">
+          {!geniusAccessToken ? (
+            <div className='Section-login-link'>
+              <a className="App-link" href={geniusAuthUrl}>Log In To Genius</a>
+            </div>
+          ) : (
+            <div className='Section-content'>
+              {childWindow ? (
+                <h4>Tracking Genius Lyrics</h4>
+              ) : (
+                <a href="/#" className="App-link">Open Lyrics Popup</a>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
     </Fragment>
   )
 }

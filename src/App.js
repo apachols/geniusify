@@ -14,21 +14,23 @@ class App extends Component {
     return (
       <div className="App">
         <header className="App-header">
+          <h1>Geniusify</h1>
+        </header>
+        <div className="App-body">
           <SpotifyProvider>
             <GeniusProvider>
-              <h1>Geniusify</h1>
-
-              <Login/>
-
-              <CurrentlyPlaying>
-                {currentlyPlaying => <Lyrics currentlyPlaying={currentlyPlaying}/>}
-              </CurrentlyPlaying>
-
+              <div>
+                <CurrentlyPlaying>
+                  {currentlyPlaying => <Lyrics currentlyPlaying={currentlyPlaying}/>}
+                </CurrentlyPlaying>
+              </div>
             </GeniusProvider>
           </SpotifyProvider>
           <br/>
-          <br/>
-        </header>
+          <div className="Footer">
+            <Login/>
+          </div>
+        </div>
       </div>
     );
   }
