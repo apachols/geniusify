@@ -12,34 +12,44 @@ export const Lyrics = (props) => (
 
 export const LyricsInner = (props) => {
   const { geniusAccessToken, currentlyPlaying } = props;
-  const [lyricsLink, setLyricsLink] = useState('https://genius.com/Rick-astley-never-gonna-give-you-up-lyrics');
-  const [dirty, setDirty] = useState(false);
+  const { blerk, setBlerk } = useState(false);
+  const [ enabled, setEnabled ] = useState(false);
   
   useEffect(() => {
-    if (dirty) {
+    if (enabled) {
       if (!geniusAccessToken) {
         throw new Error('Missing Genius Access Token');
       }
       getLyricsForSong(geniusAccessToken, currentlyPlaying).then(({ response }) => {
         const lyricsLink = lyricsLinkFromGeniusResponse(response);
-        setLyricsLink(lyricsLink);
-        window.open(lyricsLink);
-        setDirty(false);
+        if (blerk) {
+          blerk.location.href = lyricsLink; 
+        } else {
+          const returnValue = window.open(lyricsLink);
+          setBlerk(returnValue);
+        }
+        setEnabled(false);
       }).catch((err) => {
         if (err.status === 401) {
           window.location.href = '/logout/genius';
         }
       });  
     }
-  }, [dirty]);
+  }, [geniusAccessToken, blerk, setBlerk, currentlyPlaying, enabled]);
   
   return (
     <Fragment>
-    <div>
-      <button onClick={() => setDirty(true)} type='button'>
-        What are the lyrics?
-      </button>
-    </div>
+      {!enabled ? (
+        <div>
+          <button onClick={() => setEnabled(true)} type='button'>
+            What are the lyrics?
+          </button>
+        </div>
+      ) : (
+        <button onClick={() => setEnabled(false)} type='button'>
+          Disable
+        </button>
+      )}
     </Fragment>
   )
 }

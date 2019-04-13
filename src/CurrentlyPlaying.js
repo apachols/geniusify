@@ -1,6 +1,6 @@
 import React, { Fragment, useState, useEffect } from 'react';
 
-import { songNameFromSpotifyResponse, getCurrentlyPlaying } from './spotify.api'
+import { parseSpotifyResponse, getCurrentlyPlaying } from './spotify.api'
 
 import { Spotify } from './Spotify';
 
@@ -12,17 +12,19 @@ export const CurrentlyPlaying = (props) => (
 
 export const CurrentlyPlayingInner = (props) => {
   const { spotifyAccessToken } = props;
-  const [currentlyPlaying, setCurrentlyPlaying] = useState('Never Gonna Give You Up');
-  const [dirty, setDirty] = useState(false);
+  const [ currentlyPlaying, setCurrentlyPlaying ] = useState('');
+  const [ dirty, setDirty ] = useState(true);
 
   useEffect(() => {
-    if (dirty) {
-      if (!spotifyAccessToken) {
-        throw new Error('Missing Spotify Access Token');
-      }
+    if (spotifyAccessToken && dirty) {
       getCurrentlyPlaying(spotifyAccessToken).then(({ response }) => {
-        const songName = songNameFromSpotifyResponse(response);
-        setCurrentlyPlaying(songName);
+        const { songNameWithArtist, isPlaying, songDuration, songTime } = parseSpotifyResponse(response);
+        setCurrentlyPlaying(songNameWithArtist);
+        if (isPlaying) {
+          setTimeout(() => {
+            setDirty(true);
+          }, songDuration - songTime);  
+        }
         setDirty(false);
       })
       .catch((err) => {
@@ -31,15 +33,10 @@ export const CurrentlyPlayingInner = (props) => {
         }
       });  
     }
-  }, [dirty]);
+  }, [spotifyAccessToken, dirty]);
 
   return (
     <Fragment>
-      <div>
-          <button onClick={() => setDirty(true)} type='button'>
-            What song is playing?
-          </button>
-      </div>
       <h4>{currentlyPlaying}</h4>
       {props.children(currentlyPlaying)}
     </Fragment>

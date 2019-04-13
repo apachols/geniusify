@@ -19,13 +19,15 @@ class App extends Component {
               <h1>Geniusify</h1>
 
               <Login/>
-              <br/>
+
               <CurrentlyPlaying>
                 {currentlyPlaying => <Lyrics currentlyPlaying={currentlyPlaying}/>}
               </CurrentlyPlaying>
 
             </GeniusProvider>
           </SpotifyProvider>
+          <br/>
+          <br/>
         </header>
       </div>
     );

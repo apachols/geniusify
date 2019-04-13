@@ -4,24 +4,32 @@ import { oAuthInfoSpotify } from './config'
 
 export const spotifyAuthUrl = oAuthUrl(oAuthInfoSpotify);
 
-export const songNameFromSpotifyResponse = (rawResponse) => {
+const pickSpotifyResponseFields = (data) => {
+  const fields = {};
+  if (!data || !data.item) {
+    throw new Error('Spotify malformed response');
+  }
+  fields.songName = data.item.name;
+  if (data.item.artists && data.item.artists[0]) {
+    fields.artistName = data.item.artists[0].name;
+  } else {
+    fields.artistName = '';
+  }
+  fields.songNameWithArtist = `${fields.songName} - ${fields.artistName}`;
+  fields.songDuration = data.item.duration_ms;
+  fields.songTime = data.progress_ms;
+  fields.isPlaying = data.is_playing;
+  return fields;
+}
+
+export const parseSpotifyResponse = (rawResponse) => {
   try {
     const data = JSON.parse(rawResponse);
-    const parts = [];
-    if (data) {
-      if (data.item) {
-        parts.unshift(data.item.name);
-        if (data.item.artists && data.item.artists[0]) {
-          parts.unshift(data.item.artists[0].name);
-          return parts.join(' - ');
-        }
-        return parts.pop();
-      }
-    }
+    return pickSpotifyResponseFields(data);  
   } catch (err) {
     console.log(err);
   }
-  return 'Spotify response parse error';
+  return {};
 }
 
 export const getCurrentlyPlaying = (access_token) => {
